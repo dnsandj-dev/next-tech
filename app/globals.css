@@ -24,3 +24,32 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+@media print {
+  /* Hide UI elements that don't belong in a static report */
+  nav, 
+  button, 
+  form, 
+  .no-print, 
+  input, 
+  select {
+    display: none !important;
+  }
+
+  /* Force background colors to show in PDFs */
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background-color: white !important;
+  }
+
+  /* Ensure the report spans the full page width */
+  .max-w-5xl {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Add page breaks if the list is long */
+  .grid {
+    page-break-inside: avoid;
+  }
+}

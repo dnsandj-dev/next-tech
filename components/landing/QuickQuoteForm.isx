@@ -1,0 +1,95 @@
+"use client"
+
+import React, { useState } from 'react';
+import { Calculator, ArrowRight, Zap, CheckCircle } from 'lucide-react';
+
+const QuickQuoteForm = () => {
+  const [headcount, setHeadcount] = useState(25);
+  const [submitted, setSubmitted] = useState(false);
+
+  // Business Logic: Estimate 15% savings on a $2k/year/employee hardware spend
+  const estimatedSavings = (headcount * 2000) * 0.15;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+    // Here you would trigger your Server Action to save the lead
+  };
+
+  if (submitted) {
+    return (
+      <div className="bg-indigo-900 text-white p-8 rounded-2xl text-center animate-in fade-in zoom-in duration-300">
+        <div className="w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <CheckCircle size={32} />
+        </div>
+        <h3 className="text-2xl font-bold mb-2">Quote Request Received</h3>
+        <p className="text-indigo-200 mb-6">We're generating your full infrastructure audit. Check your inbox in 5 minutes.</p>
+        <button onClick={() => setSubmitted(false)} className="text-sm text-indigo-300 underline underline-offset-4">Reset Form</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden grid grid-cols-1 md:grid-cols-5">
+      {/* Left Side: The Calculator */}
+      <div className="md:col-span-3 p-8 bg-slate-50">
+        <div className="flex items-center gap-2 text-indigo-600 font-bold text-sm mb-6">
+          <Calculator size={18} /> SAVINGS CALCULATOR
+        </div>
+        
+        <div className="mb-8">
+          <label className="block text-slate-700 font-bold mb-4">Current Employee Headcount: <span className="text-indigo-600">{headcount}</span></label>
+          <input 
+            type="range" 
+            min="5" 
+            max="500" 
+            step="5"
+            value={headcount}
+            onChange={(e) => setHeadcount(parseInt(e.target.value))}
+            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+          />
+          <div className="flex justify-between text-xs text-slate-400 mt-2">
+            <span>5 Employees</span>
+            <span>500 Employees</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <p className="text-sm text-slate-500 mb-1">Estimated Annual Savings with Nexus</p>
+          <div className="text-4xl font-black text-slate-900">
+            ${estimatedSavings.toLocaleString()}
+            <span className="text-sm text-emerald-500 font-bold ml-2">/ year*</span>
+          </div>
+          <p className="text-[10px] text-slate-400 mt-4 uppercase tracking-wider italic">
+            *Based on average 15% procurement optimization & hardware lifecycle management.
+          </p>
+        </div>
+      </div>
+
+      {/* Right Side: Lead Capture */}
+      <div className="md:col-span-2 p-8 bg-indigo-600 text-white">
+        <h3 className="text-xl font-bold mb-4">Get Your Full Audit</h3>
+        <p className="text-indigo-100 text-sm mb-6">Enter your details to receive a line-item breakdown of your potential hardware savings.</p>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input 
+            type="email" 
+            placeholder="Work Email" 
+            required
+            className="w-full p-3 rounded-lg bg-indigo-700 border border-indigo-500 placeholder-indigo-300 text-white outline-none focus:ring-2 focus:ring-white/20"
+          />
+          <select className="w-full p-3 rounded-lg bg-indigo-700 border border-indigo-500 text-white outline-none focus:ring-2 focus:ring-white/20">
+            <option>Current IT Setup: Internal</option>
+            <option>Current IT Setup: Outsourced</option>
+            <option>Current IT Setup: None</option>
+          </select>
+          <button className="w-full bg-white text-indigo-600 py-3 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-indigo-50 transition-colors shadow-lg shadow-indigo-900/20">
+            Send My Audit <Zap size={16} fill="currentColor" />
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default QuickQuoteForm;

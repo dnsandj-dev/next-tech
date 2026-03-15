@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User model tied to Clerk
+model User {
+  id        String    @id @default(cuid())
+  clerkId   String    @unique
+  email     String    @unique
+  name      String?
+  imageUrl  String?
+  company   String?
+  role      Role      @default(CLIENT)
+  orders    Order[]
+  assets    Asset[] // Tracks currently owned hardware
+  createdAt DateTime  @default(now())
+  Project   Project[]
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+}
+
+// The Catalog of IT Materials
+model Product {
+  id              String      @id @default(cuid())
+  name            String
+  category        String
+  basePrice       Float
+  sku             String      @unique
+  status          String      @default("Available")
+  lastMaintenance DateTime? // Add this line
+  vendor          Vendor      @relation(fields: [vendorId], references: [id])
+  vendorId        String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  orderItems      OrderItem[]
+}
+
+// Orders for new procurement
+model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  status      OrderStatus @default(PENDING)
+  totalAmount Float
+  items       OrderItem[]
+  createdAt   DateTime    @default(now())
+  Project     Project?    @relation(fields: [projectId], references: [id])
+  projectId   String?
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float // Price at time of purchase
+}
+
+// Assets currently deployed at the client's site
+model Asset {
+  id           String      @id @default(cuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  serialNumber String      @unique
+  modelName    String
+  purchaseDate DateTime
+  warrantyExp  DateTime?
+  status       AssetStatus @default(ACTIVE)
+}
+
+model Vendor {
+  id            String                @id @default(cuid())
+  name          String                @unique // e.g., "Dell", "Ingram Micro", "CDW"
+  contactPerson String?
+  email         String?
+  phone         String?
+  rating        Int                   @default(5) // 1-5 scale for reliability
+  products      Product[]
+  orders        VendorPurchaseOrder[]
+  createdAt     DateTime              @default(now())
+}
+
+// Tracks YOUR purchases from vendors to fulfill client orders
+model VendorPurchaseOrder {
+  id          String   @id @default(cuid())
+  vendorId    String
+  vendor      Vendor   @relation(fields: [vendorId], references: [id])
+  status      String // "Ordered", "In Transit", "Received"
+  totalCost   Float
+  trackingNum String?
+  createdAt   DateTime @default(now())
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  status      ProjectStatus @default(PLANNING)
+  targetDate  DateTime?
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  orders      Order[] // Link procurement orders to this project
+  milestones  Milestone[]
+  createdAt   DateTime      @default(now())
+}
+
+model Milestone {
+  id          String  @id @default(cuid())
+  title       String
+  isCompleted Boolean @default(false)
+  projectId   String
+  project     Project @relation(fields: [projectId], references: [id])
+}
+
+model Lead {
+  id                 String   @id @default(cuid())
+  email              String
+  estimatedHeadcount Int
+  estimatedSavings   Float
+  setupType          String
+  createdAt          DateTime @default(now())
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+}
+
+enum AssetStatus {
+  ACTIVE
+  REPAIR
+  RETIRED
+}
