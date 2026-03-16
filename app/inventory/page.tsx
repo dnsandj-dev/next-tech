@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { prisma } from "@/lib/prisma";
 import { inventoryUtils } from "@/lib/inventory-utils";
 import SearchInventory from "@/components/SearchInventory";
@@ -9,8 +10,6 @@ import StatusBadge from "@/components/StatusBadge";
 import MaintenanceToggle from "@/components/MaintenanceToggle";
 import ServiceButton from "@/components/ServiceButton";
 import PrintReportButton from "@/components/PrintReportButton";
-
-export const dynamic = 'force-dynamic';
 
 export default async function InventoryPage({
   searchParams,
